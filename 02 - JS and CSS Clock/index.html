@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JS + CSS Clock</title>
+</head>
+<body>
+
+
+    <div class="clock">
+      <div class="clock-face">
+        <div class="hand hour-hand"></div>
+        <div class="hand min-hand"></div>
+        <div class="hand sec-hand"></div>
+      </div>
+    </div>
+
+
+  <style>
+    html {
+      background:#018DED url(http://unsplash.it/1500/1000?image=881&blur=50);
+      background-size:cover;
+      font-family:'helvetica neue';
+      text-align: center;
+      font-size: 10px;
+    }
+
+    body {
+      margin: 0;
+      font-size: 2rem;
+      display:flex;
+      flex:1;
+      min-height: 100vh;
+      align-items: center;
+    }
+
+    .clock {
+      width: 30rem;
+      height: 30rem;
+      border:20px solid white;
+      border-radius:50%;
+      margin:50px auto;
+      position: relative;
+      padding:2rem;
+      box-shadow:
+        0 0 0 4px rgba(0,0,0,0.1),
+        inset 0 0 0 3px #EFEFEF,
+        inset 0 0 10px black,
+        0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .clock-face {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform: translateY(-3px); /* account for the height of the clock hands */
+    }
+
+    .hand {
+      width:50%;
+      height:6px;
+      background:black;
+      position: absolute;
+      top:50%;
+      transition: transform 0.2s ease;
+      transform-origin: right;
+      transform: rotate(90deg);
+    }
+
+  </style>
+
+  <script>
+    // Contains methods for making conversions
+    // example usage: convert.hours.to.degrees(12) -> 360
+    const convert = {
+      hours: {
+        to: {
+          degrees: hours => hours / 12 * 360
+        }
+      },
+      min: {
+        to: {
+          degrees: min => min / 60 * 360
+        }
+      },
+      sec: {
+        to: {
+          degrees: sec => sec / 60 * 360
+        }
+      }
+    };
+
+    // Clock hand html element with extended functionality
+    function ClockHand(htmlEl) {
+      // html element associated with the hand
+      this.el = htmlEl;
+    }
+
+    // Sets the value of the transform: rotate style relatvie to vertical
+    ClockHand.prototype.setDegrees = function setDegrees(degrees) {
+      // add 90 to make 0 degrees = vertical (12 on the clock)
+      this.el.style.transform = `rotate(${degrees + 90}deg)`;
+    };
+
+    // Renders a clock with a smooth hand animation
+    function Clock() {
+      // the hands of the clock
+      this.hourHand = new ClockHand(document.querySelector('.hour-hand'));
+      this.minHand = new ClockHand(document.querySelector('.min-hand'));
+      this.secHand = new ClockHand(document.querySelector('.sec-hand'));
+
+      // initialize time values
+      const now = new Date();
+      this.hours = now.getHours();
+      this.min = now.getMinutes();
+      this.sec = now.getSeconds();
+      this.time = now.getTime();
+
+      // sets the angle of each clock hand
+      this.setHands = function setHands(hours, min, sec) {
+        this.hourHand.setDegrees(convert.hours.to.degrees(hours));
+        this.minHand.setDegrees(convert.min.to.degrees(min));
+        this.secHand.setDegrees(convert.sec.to.degrees(sec));
+      };
+
+      // Updates the time and position of the clock hands
+      this.update = function updateClock() {
+        const newTime = new Date().getTime();
+        const interval = newTime - this.time;
+        this.time = newTime;
+        this.sec += interval / 1000;
+        this.min += interval / 1000 / 60;
+        this.hours += interval / 1000 / 60 / 60;
+        this.setHands(this.hours, this.min, this.sec);
+      };
+
+      // initialize the clock hands
+      this.setHands(this.hours, this.min, this.sec);
+    }
+
+    // create clock instance and set interval
+    const clock = new Clock();
+    setInterval(clock.update.bind(clock), 100);
+  </script>
+</body>
+</html>
