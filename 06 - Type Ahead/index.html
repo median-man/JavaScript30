@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+/* Fetch huge array of cities. Once the array is back, update a list of cities based on user search input. */
+
+/* My Take Aways:
+    * fetch method - make promised based ajax operations
+    * use multiple .then calls to make cleaner, easier to read asynchronous code (I can think of a few projects to refactor)
+    * create a RegExp instance to use variables when implementing a regular expression.
+    * search github gists when I need trivial data for sandboxing
+ */
+
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+const cities = [];
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');      
+
+// Load large array of city data from endpoint.
+fetch(endpoint)
+  .then(blob => blob.json())
+  .then(data => cities.push(...data))
+  .catch(err => console.log('error fetching cities:\n', err));
+
+// Formats a number with commas
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// Filters array of city objects for only those where the word is included
+// within the name or state of that city.
+function findMatches(wordToMatch, cities) {
+  return cities.filter(place => {
+    // figure out if the state or city matches the search input
+    const regex = new RegExp(wordToMatch, 'gi');
+    return place.city.match(regex) || place.state.match(regex);
+  })
+}
+
+// Returns string where word is wrapped in a highlight span element within text.
+function highlightWord(word, text) {
+  const regex = new RegExp(word, 'gi');
+  return text.replace(regex, `<span class="hl">${word}</span>`);
+}
+
+// Returns html for list of cities filtered based on user input
+function displayMatches() {
+  const matchArray = findMatches(this.value, cities);
+  const html = matchArray.map(place => {
+    const cityName = highlightWord(this.value, place.city);
+    const stateName = highlightWord(this.value, place.state);
+    return `
+      <li>
+        <span class="name">${cityName}, ${stateName}</span>
+        <span class="population">${numberWithCommas(place.population)}</span>
+      </li>
+    `;
+  }).join('');
+  suggestions.innerHTML = html;
+}
+
+// listen for user input
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
+</script>
+  </body>
+</html>
