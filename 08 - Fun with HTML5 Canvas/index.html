@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+<canvas id="draw" width="800" height="800"></canvas>
+<script>
+  const canvas = document.getElementById('draw');
+
+  // Vars to track state
+  let isDrawing = false;
+  let lastX = 0;
+  let lastY = 0;
+  let hue = 0;
+
+  // line width config
+  let lineWidthStep = 1;
+  const maxLineWidth = 100;
+  const minLineWidth = 1;
+
+  // Configure canvas properties
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 15;
+  ctx.globalCompositeOperation = 'subtract';
+
+  const incrementHue = function incrementHueByOne() {
+    if (hue > 359) return hue = 0;
+    return hue += 1;
+  }
+
+  const updateLineWidth = function updateCtxLineWidth() {
+    if (ctx.lineWidth === maxLineWidth || ctx.lineWidth === minLineWidth) {
+      lineWidthStep = -1 * lineWidthStep;
+    }
+    return ctx.lineWidth += lineWidthStep;
+  }
+  
+
+  // Draw on the canvas if isDrawing is true.
+  const draw = function drawOnCanvas(event) {
+    if (!isDrawing) return void 0;
+    console.log(event);
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(event.offsetX, event.offsetY);
+    ctx.stroke();
+    [lastX, lastY] = [event.offsetX, event.offsetY];
+    incrementHue();
+    updateLineWidth();
+  }
+
+  // Updates the state based on the mouse position.
+  const startDrawing = function startDrawingOnCanvas(event) {
+    isDrawing = true;
+    [lastX, lastY] = [event.offsetX, event.offsetY];
+  }
+
+  // Draw on the canvas when mouse moves and mouse is down.
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseout', () => isDrawing = false);
+
+
+</script>
+
+<style>
+  html, body {
+    margin:0;
+  }
+</style>
+
+</body>
+</html>
