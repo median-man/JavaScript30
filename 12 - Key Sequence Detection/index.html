@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Key Detection</title>
+  <!-- <script type="text/javascript" src="http://www.cornify.com/js/cornify.js"></script> -->
+</head>
+<body>
+  <img style="display: none;" src="https://media.giphy.com/media/3oKIPrCu48s5KfzV7i/giphy.gif" alt="farting unicorn">
+<script>
+  const konami = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ];
+  let series = [];
+  let timer;
+  function handleKeypress(event) {
+    const { key } = event;
+    if (key === konami[series.length]) {
+      series.push(key);
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        console.log('resetting series', series);
+        series = [];
+      }, 800);
+    } else {
+      series = [];
+    }
+    if (series.length === konami.length) {
+      document.querySelector('img').style.display = 'block';
+    }
+  }
+  window.addEventListener('keyup', handleKeypress);
+</script>
+</body>
+</html>
