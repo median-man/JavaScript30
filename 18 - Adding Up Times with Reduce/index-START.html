@@ -182,6 +182,23 @@
     </li>
   </ul>
 <script>
+  // get array of seconds for each time
+  const times = Array.from(document.querySelectorAll('[data-time]'))
+    .map((el) => {
+      const [minutes, seconds] = el.dataset.time.split(':');
+      return (parseInt(minutes, 10) * 60) + parseInt(seconds, 10);
+    });
+
+  // get total seconds
+  let total = times.reduce((total, seconds) => total + seconds, 0);
+
+  // format time to h:m:s
+  const hours = Math.floor(total / 3600);
+  total = total % 3600;
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  console.log(`${hours}:${minutes}:${seconds}`);
+  
 </script>
 </body>
 </html>
